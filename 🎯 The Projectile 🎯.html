@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯Projectile Motion Calculator🎯</title>
+    <style>
+        :root {
+            --primary-color: #fd7a1c;
+            --secondary-color: #16132b;
+            --font-family: 'Arial', sans-serif;
+        }
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--secondary-color);
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1.1em;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        .button-group button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 1.1em;
+        }
+        .button-group button:hover {
+            background-color: #f69833;
+            transform: scale(1.1);
+        }
+        #results {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        #results h2 {
+            font-size: 1.5em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        #result {
+            font-size: 1.2em;
+            color: #000000;
+        }
+        .hidden {
+            display: none;
+        }
+        .image-selection {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .image-selection img {
+            width: 275px;
+            height: 150px;
+            object-fit: cover;
+            cursor: pointer;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        .image-selection img:hover {
+            border-color: var(--primary-color);
+        }
+        @media (max-width: 600px) {
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body onload="startCalculator()">
+    <div class="container">
+        <h1>Projectile Motion Calculator</h1>
+        <div id="selection" class="input-group">
+            <label for="projectileType">Choose Projectile Type:</label>
+            <div class="image-selection">
+                <img src=".Type 1.png" alt="Oblique Projectile Motion" onclick="selectType('type1')">
+                <img src=".Type 2.png" alt="Incomplete Projectile Motion" onclick="selectType('type2')">
+                <img src=".Type 3.png" alt="Horizontal Projectile Motion" onclick="selectType('type3')">
+            </div>
+        </div>
+        <div id="calculationSelection" class="input-group hidden">
+            <label>Select what to calculate:</label>
+            <div class="button-group">
+                <button id="SyButton" onclick="selectCalculation('Sy')" title="Calculate Max Height">S<sub>y</sub></button>
+                <button id="SxButton" onclick="selectCalculation('Sx')" title="Calculate Max Distance">S<sub>x</sub></button>
+                <button id="hButton" onclick="selectCalculation('h')" title="Calculate height">h</button>
+                <button id="HButton" onclick="selectCalculation('H')" title="Calculate Height">H</button>
+                <button id="tButton" onclick="selectCalculation('t')" title="Calculate Time">t</button>
+                <button id="V0Button" onclick="selectCalculation('V0')" title="Calculate Initial Velocity">V<sub>0</sub></button>
+                <button id="V1Button" onclick="selectCalculation('V1')" title="Calculate Velocity 1">V<sub>1</sub></button>
+                <button id="V2Button" onclick="selectCalculation('V2')" title="Calculate Velocity 2">V<sub>2</sub></button>
+                <button id="phiButton" onclick="selectCalculation('θ')" title="Calculate θ">θ</button>
+            </div>
+        </div>
+        <div id="inputs" class="hidden">
+            <div class="input-group hidden" id="SyInputGroup">
+                <label for="Sy">S<sub>y</sub> (max height):</label>
+                <input type="number" id="Sy" step="any">
+            </div>
+            <div class="input-group hidden" id="SxInputGroup">
+                <label for="Sx">S<sub>x</sub> (max distance):</label>
+                <input type="number" id="Sx" step="any">
+            </div>
+            <div class="input-group hidden" id="hInputGroup">
+                <label for="h">h (height):</label>
+                <input type="number" id="h" step="any">
+            </div>
+            <div class="input-group hidden" id="HInputGroup">
+                <label for="H">H (Height):</label>
+                <input type="number" id="H" step="any">
+            </div>
+            <div class="input-group hidden" id="V0InputGroup">
+                <label for="V0">V<sub>0</sub> (initial velocity):</label>
+                <input type="number" id="V0" step="any">
+            </div>
+            <div class="input-group hidden" id="phiInputGroup">
+                <label for="phi">θ (angle in degrees):</label>
+                <input type="number" id="phi" step="any">
+            </div>
+            <div class="input-group hidden" id="gInputGroup">
+                <label for="g">g (gravity):</label>
+                <input type="number" id="g" step="any">
+            </div>
+            <div class="input-group hidden" id="tInputGroup">
+                <label for="t">t (time):</label>
+                <input type="number" id="t" step="any">
+            </div>
+            <div class="button-group">
+                <button onclick="confirmInputs()">Confirm</button>
+                <button onclick="resetInputs()">Reset</button>
+                <button id="anotherFormulaButton" class="hidden" onclick="toggleFormula()">Another Formula</button>
+            </div>
+        </div>
+        <div id="results" class="hidden">
+            <h2>Results:</h2>
+            <div id="result"></div>
+        </div>
+        <div id="error-message" class="hidden" style="color: red; margin-top: 20px;"></div>
+    </div>
+    <script>
+        const formulas = {
+            'type1': {
+                't': [
+                    { formula: (inputs, phiRad) => (inputs.Sx) / (2 * (inputs.V0 * Math.cos(phiRad))), requiredInputs: ['Sx', 'V0', 'phi'] },
+                    { formula: (inputs, phiRad) => (2 * inputs.Sy) / (inputs.V0 * Math.sin(phiRad)), requiredInputs: ['Sy', 'V0', 'phi'] },
+                    { formula: (inputs, phiRad) => (inputs.V0 * Math.sin(phiRad)) / inputs.g, requiredInputs: ['V0', 'phi', 'g'] },
+                    { formula: (inputs) => Math.sqrt(2 * inputs.Sy / inputs.g), requiredInputs: ['Sy', 'g'] }
+                ],
+                'Sy': [
+                    { formula: (inputs) => 0.5 * inputs.g * Math.pow(inputs.t, 2), requiredInputs: ['t', 'g'] },
+                    { formula: (inputs, phiRad) => Math.pow(inputs.V0 * Math.sin(phiRad), 2) / (2 * inputs.g), requiredInputs: ['V0', 'phi', 'g'] },
+                    { formula: (inputs, phiRad) => (inputs.V0 * inputs.t * Math.sin(phiRad)) / 2, requiredInputs: ['V0', 'phi', 't'] },
+                    { formula: (inputs, phiRad) => (inputs.Sx * Math.tan(phiRad)) / 4, requiredInputs: ['Sx', 'phi'] }
+                ],
+                'Sx': [
+                    { formula: (inputs, phiRad) => inputs.V0 * Math.cos(phiRad) * 2 * inputs.t, requiredInputs: ['V0', 'phi', 't'] },
+                    { formula: (inputs, phiRad) => Math.pow(inputs.V0, 2) * Math.sin(2 * phiRad) / inputs.g, requiredInputs: ['V0', 'phi', 'g'] },
+                    { formula: (inputs, phiRad) => (inputs.Sy * 4) / Math.tan(phiRad), requiredInputs: ['Sy', 'phi'] }
+                ],
+                'V0': [
+                    { formula: (inputs, phiRad) => (inputs.g * inputs.t) / (Math.sin(phiRad)), requiredInputs: ['t', 'phi', 'g'] },
+                    { formula: (inputs, phiRad) => (inputs.Sx) / (2 * inputs.t * Math.cos(phiRad)), requiredInputs: ['Sx', 't', 'phi']},
+                    { formula: (inputs, phiRad) => (2 * (inputs.Sy) / (inputs.t * Math.sin(phiRad))), requiredInputs: ['Sy', 't', 'phi'] },
+                    { formula: (inputs, phiRad) => Math.sqrt(2 * (inputs.g) * (inputs.Sy)) / Math.sin(phiRad), requiredInputs: ['Sy', 'g', 'phi']}
+                ],
+                'θ': [
+                    { formula: (inputs) => Math.asin((inputs.g * inputs.Sx) / Math.pow(inputs.V0, 2)) / 2, requiredInputs: ['Sx', 'g', 'V0'] },
+                    { formula: (inputs) => Math.acos((inputs.Sx) / (2 * inputs.V0 * inputs.t)), requiredInputs: ['Sx', 'V0', 't'] },
+                    { formula: (inputs) => Math.asin(Math.sqrt(2 * inputs.Sy * inputs.g) / inputs.V0), requiredInputs: ['Sy', 'g', 'V0'] },
+                    { formula: (inputs) => Math.asin((inputs.Sy) / (inputs.V0 * inputs.t)), requiredInputs: ['Sy', 'V0', 't'] },
+                    { formula: (inputs) => Math.asin((inputs.g * inputs.t) / (inputs.V0)), requiredInputs: ['V0', 't', 'g'] },
+                    { formula: (inputs) => Math.atan(4 * (inputs.Sy) / inputs.Sx), requiredInputs: ['Sy', 'Sx'] }
+                ]
+            },
+            'type2': {
+                't': [
+                    { formula: (inputs, phiRad) => ((inputs.V0 * Math.sin(phiRad) / inputs.g)) + (Math.sqrt(2 * (inputs.H + inputs.h)) / inputs.g), requiredInputs: ['V0', 'phi', 'g', 'H', 'h'] },
+                    { formula: (inputs, phiRad) => (inputs.V0 * Math.sin(phiRad) + Math.sqrt(Math.pow(inputs.V0 * Math.sin(phiRad), 2) + 2 * inputs.g * inputs.H)) / inputs.g, requiredInputs: ['V0', 'phi', 'g', 'H'] },
+                    { formula: (inputs, phiRad) => (inputs.V0 * Math.sin(phiRad)) / inputs.g + Math.sqrt((2 * inputs.Sy) / inputs.g), requiredInputs: ['V0', 'phi', 'g', 'Sy'] }
+                ],
+                'Sy': [
+                    { formula: (inputs, phiRad) => Math.pow(((inputs.g * inputs.t) - (inputs.V0 * Math.sin(phiRad))), 2) / (2 * inputs.g), requiredInputs: ['V0', 'phi', 'g', 't']},
+                    { formula: (inputs, phiRad) => (Math.pow(inputs.V0 * Math.sin(phiRad), 2) + (2 * inputs.g * inputs.H)) / (2 * inputs.g), requiredInputs: ['V0', 'phi', 'g', 'H'] },
+                    { formula: (inputs) => inputs.H + inputs.h, requiredInputs: ['H', 'h'] }
+                ],
+                'Sx': [
+                    { formula: (inputs, phiRad) => inputs.V0 * Math.cos(phiRad) * inputs.t, requiredInputs: ['V0', 't', 'phi'] }
+                ],
+                'H': [
+                    { formula: (inputs) => inputs.Sy - inputs.h, requiredInputs: ['Sy', 'h'] },
+                    { formula: (inputs, phiRad) => (Math.pow(inputs.t * inputs.g, 2) - 2 * inputs.t * inputs.g * inputs.V0 * Math.sin(phiRad)) / (2 * inputs.g), requiredInputs: ['t', 'g', 'V0', 'phi'] }
+                ],
+                'h': [
+                    { formula: (inputs) => inputs.Sy - inputs.H, requiredInputs: ['Sy', 'H'] },
+                    { formula: (inputs, phiRad) => Math.pow(inputs.V0 * Math.sin(phiRad), 2) / (2 * inputs.g), requiredInputs: ['V0', 'phi', 'g'] }
+                ],
+                'V0': [
+                    { formula: (inputs, phiRad) => ((inputs.t * inputs.g * 0.5) - (inputs.H / inputs.t)) / Math.sin(phiRad), requiredInputs: ['t', 'g', 'H', 'phi'] }
+                ],
+                'V1': [
+                    { formula: (inputs, phiRad) => Math.sqrt(Math.pow(inputs.V0, 2) * (1 + Math.pow(Math.sin(phiRad), 2)) + 2 * inputs.g * inputs.H), requiredInputs: ['V0', 'phi', 'g', 'H'] },
+                    { formula: (inputs, phiRad) => Math.sqrt(Math.pow(inputs.V0, 2) + Math.pow((inputs.g * inputs.t) - (inputs.V0 * Math.sin(phiRad)), 2)), requiredInputs: ['V0', 'phi', 'g', 't'] }
+                ],
+                'θ': [  
+                    { formula: (inputs) => Math.asin(((inputs.t * inputs.g * 0.5) - (inputs.H / inputs.t)) / inputs.V0), requiredInputs: ['t', 'g', 'H', 'V0'] },
+                    { formula: (inputs) => Math.asin(((inputs.t * inputs.g) - Math.sqrt(2 * (inputs.H + inputs.h) * inputs.g)) / inputs.V0), requiredInputs: ['t', 'g', 'H', 'h', 'V0']},
+                    { formula: (inputs) => Math.asin(((inputs.t * inputs.g) - Math.sqrt(2 * inputs.Sy * inputs.g)) / inputs.V0), requiredInputs: ['t', 'g', 'Sy', 'V0']},
+                    { formula: (inputs) => Math.asin(Math.sqrt(2 * inputs.h * inputs.g) / inputs.V0), requiredInputs: ['h', 'g', 'V0'] }
+                ]
+            },
+            'type3': {
+                't': [
+                    { formula: (inputs) => (inputs.Sx) / (inputs.V0), requiredInputs: ['Sx', 'V0'] },
+                    { formula: (inputs) => Math.sqrt(2 * inputs.Sy / inputs.g), requiredInputs: ['Sy', 'g'] }
+                ],
+                'Sy': [
+                    { formula: (inputs) => (0.5 * inputs.g * Math.pow(inputs.t, 2)), requiredInputs: ['g', 't'] }
+                ],
+                'Sx': [
+                    { formula: (inputs) => inputs.V0 * inputs.t, requiredInputs: ['V0', 't'] }
+                ],
+                'V0': [
+                    { formula: (inputs) => inputs.Sx / inputs.t, requiredInputs: ['Sx', 't'] }
+                ],
+                'V2': [
+                    { formula: (inputs) => Math.sqrt(Math.pow(inputs.V0, 2) + (2 * inputs.g * inputs.Sy)), requiredInputs: ['V0', 'g', 'Sy'] }
+                ],
+                'θ': [
+                    { formula: (inputs) => (Math.asin((2 * inputs.g * inputs.Sx) / Math.pow(inputs.V0, 2))) / 2, requiredInputs: ['Sx', 'g', 'V0'] }
+                ]
+            }
+        };
+
+        let selectedCalculation = '';
+        let selectedType = 'type1';
+        let formulaIndex = 0;
+
+        const startCalculator = () => {
+            selectedType = 'type1';
+            updateCalculationOptions();
+        }
+
+        const selectType = (type) => {
+            selectedType = type;
+            document.getElementById('calculationSelection').classList.remove('hidden');
+            updateCalculationOptions();
+        }
+
+        const selectCalculation = (calcType) => {
+            selectedCalculation = calcType;
+            formulaIndex = 0;
+            document.getElementById('inputs').classList.remove('hidden');
+            if (formulas[selectedType][calcType].length > 1) {
+                document.getElementById('anotherFormulaButton').classList.remove('hidden');
+            } else {
+                document.getElementById('anotherFormulaButton').classList.add('hidden');
+            }
+            updateRequiredInputs();
+        }
+
+        const updateRequiredInputs = () => {
+            const requiredInputs = formulas[selectedType][selectedCalculation][formulaIndex].requiredInputs;
+            document.querySelectorAll('.input-group').forEach(group => group.classList.add('hidden'));
+            requiredInputs.forEach(inputId => {
+                document.getElementById(inputId + 'InputGroup').classList.remove('hidden');
+            });
+        }
+
+        const confirmInputs = () => {
+            const requiredInputs = formulas[selectedType][selectedCalculation][formulaIndex].requiredInputs;
+            const inputs = getInputs(requiredInputs);
+            const allFieldsValid = requiredInputs.every(inputId => inputs[inputId] !== undefined && inputs[inputId] !== '' && !isNaN(inputs[inputId]));
+            if (!allFieldsValid) {
+                const errorMessageElement = document.getElementById('error-message');
+                errorMessageElement.innerText = 'Please fill in all required fields with valid numbers.';
+                errorMessageElement.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const result = calculateResult(selectedCalculation, inputs);
+                if (isNaN(result) || result === undefined || !isFinite(result)) {
+                    throw new Error('The calculation resulted in an invalid value.');
+                }
+                displayResult(result);
+            } catch (error) {
+                const errorMessageElement = document.getElementById('error-message');
+                errorMessageElement.innerText = `${error.message} Please check your inputs and try again.`;
+                errorMessageElement.classList.remove('hidden');
+                document.getElementById('results').classList.add('hidden');
+                document.getElementById('result').innerText = '';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const focusedElement = document.activeElement;
+
+                    if (focusedElement.tagName === 'INPUT' || focusedElement.tagName === 'SELECT') {
+                        const formElements = Array.from(document.querySelectorAll('input, select, button'));
+                        const index = formElements.indexOf(focusedElement);
+                        if (index < formElements.length - 1) {
+                            formElements[index + 1].focus();
+                        } else {
+                            formElements[0].focus();
+                        }
+                    } else if (focusedElement.id === 'anotherFormulaButton') {
+                        toggleFormula();
+                    } else if (focusedElement.textContent.trim() === 'Confirm') {
+                        confirmInputs();
+                    }
+                }
+            });
+        });
+
+        const getInputs = (requiredInputs) => {
+            const inputs = {};
+            requiredInputs.forEach(inputId => {
+                const value = parseFloat(document.getElementById(inputId).value);
+                if (isNaN(value) || value === '' || value === undefined) {
+                    inputs[inputId] = undefined;
+                } else {
+                    inputs[inputId] = value;
+                }
+            });
+            return inputs;
+        }
+
+        const calculateResult = (variable, inputs) => {
+            const phiRad = inputs.phi !== undefined ? inputs.phi * Math.PI / 180 : 0;
+            const formula = formulas[selectedType][variable][formulaIndex].formula;
+            let result = formula(inputs, phiRad);
+            if (variable === 'θ') {
+                result = result * (180 / Math.PI);
+            }
+            return result;
+        }
+
+        const displayResult = (result) => {
+            const resultElement = document.getElementById('result');
+            const unit = (selectedCalculation === 'θ') ? '°' : '';
+            resultElement.innerHTML = `<strong>${selectedCalculation}:</strong> ${result.toFixed(10)} ${unit}`;
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+        }
+
+        const toggleFormula = () => {
+            formulaIndex = (formulaIndex + 1) % formulas[selectedType][selectedCalculation].length;
+            document.querySelectorAll('.input-group input[type="number"]').forEach(input => input.value = '');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+            updateRequiredInputs();
+        }
+
+        const resetInputs = () => {
+            selectedCalculation = '';
+            formulaIndex = 0;
+            document.querySelectorAll('.input-group input[type="number"]').forEach(input => input.value = '');
+            document.getElementById('inputs').classList.add('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('anotherFormulaButton').classList.add('hidden');
+            document.getElementById('result').innerText = '';
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('calculationSelection').classList.add('hidden');
+            document.getElementById('selection').classList.remove('hidden');
+        }
+
+        const updateCalculationOptions = () => {
+            document.getElementById('hButton').classList[formulas[selectedType]['h'] ? 'remove' : 'add']('hidden');
+            document.getElementById('HButton').classList[formulas[selectedType]['H'] ? 'remove' : 'add']('hidden');
+            document.getElementById('V1Button').classList[formulas[selectedType]['V1'] ? 'remove' : 'add']('hidden');
+            document.getElementById('V2Button').classList[formulas[selectedType]['V2'] ? 'remove' : 'add']('hidden');
+            document.getElementById('SyButton').classList[formulas[selectedType]['Sy'] ? 'remove' : 'add']('hidden');
+            document.getElementById('SxButton').classList[formulas[selectedType]['Sx'] ? 'remove' : 'add']('hidden');
+            document.getElementById('tButton').classList[formulas[selectedType]['t'] ? 'remove' : 'add']('hidden');
+            document.getElementById('V0Button').classList[formulas[selectedType]['V0'] ? 'remove' : 'add']('hidden');
+            document.getElementById('phiButton').classList[formulas[selectedType]['θ'] ? 'remove' : 'add']('hidden');
+            document.querySelector('.button-group').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
